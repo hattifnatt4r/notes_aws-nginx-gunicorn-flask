@@ -1,5 +1,6 @@
 # notes_nginx-gunicorn-flask
 Some steps to set up python-flask-gunicorn-nginx on AWS. Mostly copied from [source1](https://realpython.com/django-nginx-gunicorn/) and [source2](https://pyliaorachel.github.io/blog/tech/system/2017/07/07/flask-app-with-gunicorn-on-nginx-server-upon-aws-ec2-linux.html).
+Other pages - [Flask notes]()
 
 ## AWS EC2 setup
 
@@ -14,7 +15,7 @@ Initial setup:
 ```
 $ sudo apt update
 $ sudo apt upgrade
-$ sudo apt-get install fish git tig python3-pip python3-flask nginx
+$ sudo apt-get install fish git tig python3-pip python3-flask nginx curl
 $ pip install virtualenv
 ```
 
@@ -124,7 +125,7 @@ $ sudo systemctl reload nginx
 Test https://eazyprojectapp.com. Redirect from HTTP to HTTPS may need to be configured separately.
 
 ## TBD
-Missint Upstart script for Gunicorn.
+Missing: Upstart script for Gunicorn.
 
 ## Other commands
 
