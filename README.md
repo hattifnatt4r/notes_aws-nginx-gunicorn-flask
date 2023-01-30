@@ -1,6 +1,5 @@
 # notes_nginx-gunicorn-flask
 Some steps to set up python-flask-gunicorn-nginx on AWS. Mostly copied from [source1](https://realpython.com/django-nginx-gunicorn/) and [source2](https://pyliaorachel.github.io/blog/tech/system/2017/07/07/flask-app-with-gunicorn-on-nginx-server-upon-aws-ec2-linux.html).
-Other pages - [Flask notes]()
 
 ## AWS EC2 setup
 
@@ -60,7 +59,7 @@ $ gunicorn --bind 0.0.0.0:8080 wsgi
 Test serverip:8080
 
 ## Nginx setup
-Replace "eazyprojectapp" with your domain everywhere below.
+Replace "appname" with your domain everywhere below.
 
 ```
 $ sudo apt-get install -y 'nginx=1.18.*'
@@ -68,15 +67,15 @@ $ nginx -v
 $ sudo systemctl start nginx
 $ sudo systemctl status nginx
 ```
-Create /etc/nginx/sites-available/eazyprojectapp:
+Create /etc/nginx/sites-available/appname:
 ```
 server_tokens               off;
-access_log                  /var/log/nginx/eazyprojectapp.access.log;
-error_log                   /var/log/nginx/eazyprojectapp.error.log;
+access_log                  /var/log/nginx/appname.access.log;
+error_log                   /var/log/nginx/appname.error.log;
 
 # This configuration will be changed to redirect to HTTPS later
 server {
-  server_name               .eazyprojectapp.com;
+  server_name               .appname.com;
   listen                    80;
   location / {
     proxy_pass              http://localhost:8000;
@@ -87,12 +86,12 @@ server {
 
 Test config:
 ```
-$ sudo service nginx configtest /etc/nginx/sites-available/eazyprojectapp
+$ sudo service nginx configtest /etc/nginx/sites-available/appname
 ```
 Enable domain:
 ```
 $ cd /etc/nginx/sites-enabled
-$ sudo ln -s ../sites-available/eazyprojectapp .
+$ sudo ln -s ../sites-available/appname .
 $ sudo systemctl restart nginx
 ```
 
@@ -115,14 +114,38 @@ $ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 $ sudo certbot --nginx --rsa-key-size 4096 --no-redirect
 # (type both name.com and www.name.com)
 ```
-/etc/nginx/sites-available/eazyprojectapp will be updated by Certbot
+/etc/nginx/sites-available/appname will be updated by Certbot
 
 Restart Nginx
 ```
 $ sudo systemctl reload nginx
 ```
 
-Test https://eazyprojectapp.com. Redirect from HTTP to HTTPS may need to be configured separately.
+Test https://appname.com. Redirect from HTTP to HTTPS may need to be configured separately.
+
+## Variations
+Nginx config: back-end on subdomain api.appname.com <br />
+(Create "A" record in Route 53, pointing to the same IP. Re-run Certbot after changing Nginx config)
+
+```
+server {
+  server_name               appname.com;
+  listen                    80;
+  location / {
+    root /var/www/build;
+  }
+}
+
+server {
+  server_name               api.appname.com;
+  listen                    80;
+  location / {
+    proxy_pass              http://localhost:8080;
+    proxy_set_header        Host $host;
+  }
+}
+
+```
 
 ## TBD
 Missing: Upstart script for Gunicorn.
