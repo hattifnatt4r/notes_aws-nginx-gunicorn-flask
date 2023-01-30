@@ -4,21 +4,21 @@ Some steps to set up python-flask-gunicorn-nginx on AWS. Mostly copied from [sou
 ## AWS EC2 setup
 
 * Create EC2 instance with Ubuntu.
-* Create Elastic IP, associate with EC2 instance.
-* Open ports 80 and 443 in EC2 security group.
-* Create domain in Route 53 (it will take 60 days before you can transfer new domains created though other vendors)
+* Create Elastic IP, associate with EC2 instance. Otherwise IP will change after system restart.
+* Open ports 80 and 443 in EC2 security group. 
+* Create domain in Route 53. When using domains from other vendors, it may take 60 days before you can transfer new domains.
 * In Route 53, "create record" to link domain and the EC2 instance.
 
-
-## Gunicorn and Flask
 SSH to EC2 instance.<br />
 Initial setup:
 ```
 $ sudo apt update
 $ sudo apt upgrade
 $ sudo apt-get install fish git tig python3-pip python3-flask nginx
-$ pip install virtualenv gunicorn flask
+$ pip install virtualenv
 ```
+
+## Gunicorn and Flask
 Create project
 ```
 $ mkdir myproject
@@ -44,25 +44,21 @@ if __name__ == "__main__":
     application.run()
 ``` 
 
-Configure Gunicorn
+Run Gunicorn (you will need port 8080 open in EC2 security groups to test without Nginx):
 ```
 # create virtualenv
 $ virtualenv venv
 
 # activate virtualenv
 $ source ./venv/bin/activate
-```
+$ pip install gunicorn flask
 
-Run Gunicorn (you will need port 8080 open in EC2 security groups):
-```
-gunicorn --bind 0.0.0.0:8080 wsgi
+$ gunicorn --bind 0.0.0.0:8080 wsgi
 ```
 
 Test serverip:8080
 
 ## Nginx setup
-![alt text](/images/nginx-gunicorn-flask.png)
-
 Replace "eazyprojectapp" with your domain everywhere below.
 
 ```
@@ -90,7 +86,7 @@ server {
 
 Test config:
 ```
-sudo service nginx configtest /etc/nginx/sites-available/eazyprojectapp
+$ sudo service nginx configtest /etc/nginx/sites-available/eazyprojectapp
 ```
 Enable domain:
 ```
@@ -122,15 +118,27 @@ $ sudo certbot --nginx --rsa-key-size 4096 --no-redirect
 
 Restart Nginx
 ```
-sudo systemctl reload nginx
+$ sudo systemctl reload nginx
 ```
 
 Test https://eazyprojectapp.com. Redirect from HTTP to HTTPS may need to be configured separately.
 
+## TBD
+Missint Upstart script for Gunicorn.
 
+## Other commands
+
+```
+# ports in use:
+$ sudo lsof -i -P -n | grep LISTEN
+
+# stop gunicorn
+$ pkill gunicorn
+```
 
 ## Resources
 https://realpython.com/django-nginx-gunicorn/
 
 https://pyliaorachel.github.io/blog/tech/system/2017/07/07/flask-app-with-gunicorn-on-nginx-server-upon-aws-ec2-linux.html
 
+![alt text](/images/nginx-gunicorn-flask.png)
