@@ -58,7 +58,7 @@ Run Gunicorn (you will need port 8080 open in EC2 security groups):
 gunicorn --bind 0.0.0.0:8080 wsgi
 ```
 
-Test url:8080
+Test serverip:8080
 
 ## Nginx setup
 ![alt text](/images/nginx-gunicorn-flask.png)
