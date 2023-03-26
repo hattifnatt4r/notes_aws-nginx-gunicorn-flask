@@ -147,17 +147,32 @@ server {
 
 ```
 
-## TBD
-Missing: Upstart script for Gunicorn.
+## Systemd Script example
 
-## Other commands
-
+/etc/systemd/appname_gunicorn.service
 ```
-# ports in use:
-$ sudo lsof -i -P -n | grep LISTEN
+[Unit]
+Description=Gunicorn instance to serve myproject
+# wait for nginx and mysql
+After=network.target
+After=nginx.service
+After=mysql.service
 
-# stop gunicorn
-$ pkill gunicorn
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/path/to/app/api
+Environment="PATH=/path/to/app/api/venv/bin"
+ExecStart=/path/to/app/api/venv/bin/gunicorn --workers 1 --bind 0.0.0.0:8080 wsgi
+
+[Install]
+WantedBy=multi-user.target
+```
+"Enable" script to run on startup:
+```
+sudo systemctl enable appname_gunicorn
+sudo systemctl start appname_gunicorn
+sudo systemctl status appname_gunicorn
 ```
 
 ## Resources

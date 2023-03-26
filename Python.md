@@ -1,0 +1,3 @@
+# Python notes
+
+### DB connection

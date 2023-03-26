@@ -18,7 +18,7 @@ if __name__ == "__main__":
 ```
 
 
-## Multiple files:
+### Multiple files:
 app.py:
 ```
 from flask import Flask, request, jsonify
@@ -58,5 +58,15 @@ def add_country():
       countries.append(country)
       return country, 201
   return {"error": "Request must be JSON"}, 415
+
+```
+
+### Return static file
+
+```
+from flask import send_from_directory
+@application.route('/page1')
+def send_report():
+  return send_from_directory('path/to/dir/', 'index.html')
 
 ```
