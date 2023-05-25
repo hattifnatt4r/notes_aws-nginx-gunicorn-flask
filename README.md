@@ -149,7 +149,7 @@ server {
 
 ## Systemd Script example
 
-/etc/systemd/appname_gunicorn.service
+/etc/systemd/system/appname_gunicorn.service
 ```
 [Unit]
 Description=Gunicorn instance to serve myproject
